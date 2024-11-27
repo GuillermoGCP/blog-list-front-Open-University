@@ -4,5 +4,6 @@ import ErrorMessage from './ErrorMessage'
 import LoginForm from './LoginForm'
 import User from './User'
 import LogOutButton from './LogOutButton'
+import BlogForm from './BlogForm'
 
-export { Blog, BlogList, ErrorMessage, LoginForm, User, LogOutButton }
+export { Blog, BlogList, ErrorMessage, LoginForm, User, LogOutButton, BlogForm }

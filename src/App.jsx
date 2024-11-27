@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import blogService from './services/blogs'
 import { checkLocalStorage } from './utils/index'
-import { BlogList, ErrorMessage, LoginForm, User } from './components/index'
+import {
+  BlogForm,
+  BlogList,
+  ErrorMessage,
+  LoginForm,
+  User,
+} from './components/index'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -20,6 +26,11 @@ const App = () => {
       ) : (
         <>
           <User user={user} setUser={setUser} />
+          <BlogForm
+            setBlogs={setBlogs}
+            token={user.token}
+            setError={setError}
+          />
           <BlogList blogs={blogs} />
         </>
       )}
