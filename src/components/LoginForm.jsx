@@ -13,11 +13,10 @@ const LoginForm = ({ setUser, setError }) => {
       setUser(userData)
       setUsername('')
       setPassword('')
+      if (typeof window !== undefined)
+        window.localStorage.setItem('user', JSON.stringify(userData))
     } catch (error) {
-      setUsername('')
-      setPassword('')
-
-      setError(error.response.data.error)
+      setError(error.response.data.error || 'Network error')
       setTimeout(() => setError(''), 5000)
     }
   }
