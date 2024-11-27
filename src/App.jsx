@@ -4,7 +4,7 @@ import { checkLocalStorage } from './utils/index'
 import {
   BlogForm,
   BlogList,
-  ErrorMessage,
+  ResponseMessage,
   LoginForm,
   User,
 } from './components/index'
@@ -13,6 +13,7 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(checkLocalStorage())
   const [error, setError] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -20,7 +21,9 @@ const App = () => {
 
   return (
     <>
-      {error && <ErrorMessage error={error} />}
+      {error && <ResponseMessage msg={error} color={'red'} />}
+      {successMsg && <ResponseMessage msg={successMsg} />}
+
       {!user.token ? (
         <LoginForm setUser={setUser} setError={setError} />
       ) : (
@@ -30,6 +33,7 @@ const App = () => {
             setBlogs={setBlogs}
             token={user.token}
             setError={setError}
+            setSuccessMsg={setSuccessMsg}
           />
           <BlogList blogs={blogs} />
         </>
