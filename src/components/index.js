@@ -5,6 +5,7 @@ import LoginForm from './LoginForm'
 import User from './User'
 import LogOutButton from './LogOutButton'
 import BlogForm from './BlogForm'
+import Togglable from './Toggable'
 
 export {
   Blog,
@@ -14,4 +15,5 @@ export {
   User,
   LogOutButton,
   BlogForm,
+  Togglable,
 }

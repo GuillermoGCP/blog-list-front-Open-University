@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import blogsService from '../services/blogs'
 
-const BlogForm = ({ setBlogs, token, setError, setSuccessMsg }) => {
+const BlogForm = ({ setBlogs, token, setError, setSuccessMsg, hideForm }) => {
   const {
     register,
     handleSubmit,
@@ -14,6 +14,7 @@ const BlogForm = ({ setBlogs, token, setError, setSuccessMsg }) => {
       const newBlog = await blogsService.createBlog(data, token)
       setBlogs((prevData) => [...prevData, newBlog])
       reset()
+      hideForm()
       setSuccessMsg(`A new blog ${newBlog.title} by ${newBlog.author}`)
       setTimeout(() => setSuccessMsg(''), 5000)
     } catch (error) {
