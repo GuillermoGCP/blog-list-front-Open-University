@@ -43,7 +43,7 @@ const App = () => {
             />
           </Togglable>
 
-          <BlogList blogs={blogs} />
+          <BlogList blogs={blogs} setBlogs={setBlogs} />
         </>
       )}
     </>

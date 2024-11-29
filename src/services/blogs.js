@@ -18,4 +18,10 @@ const createBlog = async (newBlog, token) => {
   return response.data
 }
 
-export default { getAll, createBlog }
+const updateLikes = async (data, blogId) => {
+  const url = `${baseUrl}/likes/${blogId}`
+  const response = await axios.patch(url, data)
+  return response.data
+}
+
+export default { getAll, createBlog, updateLikes }
