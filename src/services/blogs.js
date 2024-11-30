@@ -23,5 +23,16 @@ const updateLikes = async (data, blogId) => {
   const response = await axios.patch(url, data)
   return response.data
 }
+const removeBlog = async (blogId, token) => {
+  const url = `${baseUrl}/${blogId}`
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  }
+  const response = await axios.delete(url, config)
+  return response.data
+}
 
-export default { getAll, createBlog, updateLikes }
+export default { getAll, createBlog, updateLikes, removeBlog }

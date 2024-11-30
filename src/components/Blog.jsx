@@ -2,25 +2,47 @@ import React from 'react'
 import './Blog.css'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, setBlogs }) => {
+const Blog = ({ blog, setBlogs, setError, user }) => {
   const [areDetailsVisible, setAreDetailsVisible] = React.useState(true)
 
   const toggleDetails = () => {
     setAreDetailsVisible(!areDetailsVisible)
   }
-  const handleLike = async () => {
-    const data = { user: blog.user.id, likes: blog.likes + 1 }
-    const response = await blogService.updateLikes(data, blog.id)
 
-    setBlogs((prevData) => {
-      return prevData.map((blog) => {
-        if (blog.id === response.id) {
-          return { ...response, user: blog.user }
-        } else {
-          return blog
-        }
+  const handleLike = async () => {
+    try {
+      const data = { user: blog.user.id, likes: blog.likes + 1 }
+      const response = await blogService.updateLikes(data, blog.id)
+
+      setBlogs((prevData) => {
+        return prevData.map((blog) => {
+          if (blog.id === response.id) {
+            return { ...response, user: blog.user }
+          } else {
+            return blog
+          }
+        })
       })
-    })
+    } catch (error) {
+      setError(error.response.data.error || 'Network error')
+      setTimeout(() => setError(''), 5000)
+    }
+  }
+
+  const handleDelete = async () => {
+    const confirm = window.confirm(`Remove ${blog.title} by ${blog.author}`)
+    if (!confirm) return
+
+    try {
+      await blogService.removeBlog(blog.id, user.token)
+
+      setBlogs((prevData) => {
+        return prevData.filter((prevBlog) => blog.id !== prevBlog.id)
+      })
+    } catch (error) {
+      setError(error.response.data.error || 'Network error')
+      setTimeout(() => setError(''), 5000)
+    }
   }
 
   return areDetailsVisible ? (
@@ -39,6 +61,10 @@ const Blog = ({ blog, setBlogs }) => {
         </button>
       </div>
       <p className='blog-author'>Author: {blog.author}</p>
+      {/* {Show delete button only to blog owner} */}
+      {blog.user.username === user.username && (
+        <button onClick={handleDelete}>remove</button>
+      )}
     </div>
   ) : (
     <div className='blog-hidden'>
