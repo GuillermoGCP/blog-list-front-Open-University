@@ -3,7 +3,7 @@ import './Blog.css'
 import blogService from '../services/blogs'
 
 const Blog = ({ blog, setBlogs, setError, user }) => {
-  const [areDetailsVisible, setAreDetailsVisible] = React.useState(true)
+  const [areDetailsVisible, setAreDetailsVisible] = React.useState(false)
 
   const toggleDetails = () => {
     setAreDetailsVisible(!areDetailsVisible)
@@ -67,7 +67,7 @@ const Blog = ({ blog, setBlogs, setError, user }) => {
       )}
     </div>
   ) : (
-    <div className='blog-hidden'>
+    <div className='blog_hidden'>
       <span>{blog.title}</span>
       <button className='toggle-btn' onClick={toggleDetails}>
         View
