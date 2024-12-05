@@ -1,7 +1,14 @@
 import { useForm } from 'react-hook-form'
 import blogsService from '../services/blogs'
 
-const BlogForm = ({ setBlogs, token, setError, setSuccessMsg, hideForm }) => {
+const BlogForm = ({
+  setBlogs,
+  token,
+  setError,
+  setSuccessMsg,
+  hideForm,
+  testingFn,
+}) => {
   const {
     register,
     handleSubmit,
@@ -9,19 +16,22 @@ const BlogForm = ({ setBlogs, token, setError, setSuccessMsg, hideForm }) => {
     formState: { errors },
   } = useForm()
 
-  const onSubmit = async (data) => {
-    try {
-      const newBlog = await blogsService.createBlog(data, token)
-      setBlogs((prevData) => [...prevData, newBlog])
-      reset()
-      hideForm()
-      setSuccessMsg(`A new blog ${newBlog.title} by ${newBlog.author}`)
-      setTimeout(() => setSuccessMsg(''), 5000)
-    } catch (error) {
-      setError(error.response.data.error || 'Network error')
-      setTimeout(() => setError(''), 5000)
-    }
-  }
+  const onSubmit =
+    testingFn ||
+    (async (data) => {
+      try {
+        const newBlog = await blogsService.createBlog(data, token)
+        setBlogs((prevData) => [...prevData, newBlog])
+        reset()
+        hideForm()
+        setSuccessMsg(`A new blog ${newBlog.title} by ${newBlog.author}`)
+        setTimeout(() => setSuccessMsg(''), 5000)
+      } catch (error) {
+        setError(error.response.data.error || 'Network error')
+        setTimeout(() => setError(''), 5000)
+      }
+    })
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: '20px' }}>
       <label>

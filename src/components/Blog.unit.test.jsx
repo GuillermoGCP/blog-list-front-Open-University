@@ -3,6 +3,7 @@ import Blog from './Blog'
 import { beforeEach, describe, expect } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import BlogLikes from './BlogLikes'
+import BlogForm from './BlogForm'
 
 const blogMock = {
   id: '5a422bc61b54a676234d17fc',
@@ -12,12 +13,10 @@ const blogMock = {
   likes: 2,
   user: { id: 'user1', username: 'testuser' },
 }
-let mockSetBlogs
-let mockSetError
+const mockSetBlogs = vi.fn()
+const mockSetError = vi.fn()
 describe('render blog content', () => {
   beforeEach(() => {
-    mockSetBlogs = vi.fn()
-    const mockSetError = vi.fn()
     render(
       <Blog
         blog={blogMock}
@@ -77,5 +76,52 @@ describe('render blog content', () => {
 
     await user.click(likeButton)
     expect(mockHandleLikes.mock.calls).toHaveLength(2)
+  })
+})
+
+describe('form tests', () => {
+  let user
+  let mockCreateBlog
+  beforeEach(() => {
+    user = userEvent.setup()
+    mockCreateBlog = vi.fn()
+    const mockHideForm = vi.fn()
+    const mockSetSuccessMsg = vi.fn()
+    const token = 'mock-token'
+
+    render(
+      <BlogForm
+        setBlogs={mockSetBlogs}
+        setError={mockSetError}
+        hideForm={mockHideForm}
+        setSuccessMsg={mockSetSuccessMsg}
+        token={token}
+        testingFn={mockCreateBlog}
+      />
+    )
+  })
+
+  test('A new form is created with correct values', async () => {
+    const authorInput = screen.getByLabelText('Author:')
+    await user.type(authorInput, 'Testing new author')
+
+    const titleInput = screen.getByLabelText('Title:')
+    await user.type(titleInput, 'Testing new title')
+
+    const urlInput = screen.getByLabelText('Url:')
+    await user.type(urlInput, 'www.Testing-example.com')
+
+    const sendButton = screen.getByText('Create')
+    await user.click(sendButton)
+
+    expect(mockCreateBlog.mock.calls).toHaveLength(1)
+    //Also:
+    expect(mockCreateBlog).toHaveBeenCalledTimes(1)
+
+    expect(mockCreateBlog.mock.calls[0][0]).toStrictEqual({
+      author: 'Testing new author',
+      title: 'Testing new title',
+      url: 'www.Testing-example.com',
+    })
   })
 })
