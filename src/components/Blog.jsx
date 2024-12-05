@@ -1,6 +1,7 @@
 import React from 'react'
 import './Blog.css'
 import blogService from '../services/blogs'
+import BlogLikes from './BlogLikes'
 
 const Blog = ({ blog, setBlogs, setError, user }) => {
   const [areDetailsVisible, setAreDetailsVisible] = React.useState(false)
@@ -24,7 +25,7 @@ const Blog = ({ blog, setBlogs, setError, user }) => {
         })
       })
     } catch (error) {
-      setError(error.response.data.error || 'Network error')
+      setError(error.response?.data.error || 'Network error')
       setTimeout(() => setError(''), 5000)
     }
   }
@@ -55,10 +56,7 @@ const Blog = ({ blog, setBlogs, setError, user }) => {
       </div>
       <p className='blog-url'>{blog.url}</p>
       <div className='blog-likes'>
-        <span>{blog.likes} likes</span>
-        <button className='like-btn' onClick={handleLike}>
-          Like
-        </button>
+        <BlogLikes handleLike={handleLike} blog={blog} />
       </div>
       <p className='blog-author'>Author: {blog.author}</p>
       {/* {Show delete button only to blog owner} */}

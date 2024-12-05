@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import Blog from './Blog'
 import { beforeEach, describe, expect } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import BlogLikes from './BlogLikes'
 
 const blogMock = {
   id: '5a422bc61b54a676234d17fc',
@@ -11,10 +12,11 @@ const blogMock = {
   likes: 2,
   user: { id: 'user1', username: 'testuser' },
 }
-
+let mockSetBlogs
+let mockSetError
 describe('render blog content', () => {
   beforeEach(() => {
-    const mockSetBlogs = vi.fn()
+    mockSetBlogs = vi.fn()
     const mockSetError = vi.fn()
     render(
       <Blog
@@ -62,5 +64,18 @@ describe('render blog content', () => {
         'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html'
       )
     ).not.toBeInTheDocument()
+  })
+
+  test('Clicking the Like button twice calls the event handler twice', async () => {
+    const user = userEvent.setup()
+    const mockHandleLikes = vi.fn()
+    render(<BlogLikes handleLike={mockHandleLikes} blog={blogMock} />)
+
+    const likeButton = screen.getByText('Like')
+    await user.click(likeButton)
+    expect(mockHandleLikes.mock.calls).toHaveLength(1)
+
+    await user.click(likeButton)
+    expect(mockHandleLikes.mock.calls).toHaveLength(2)
   })
 })
