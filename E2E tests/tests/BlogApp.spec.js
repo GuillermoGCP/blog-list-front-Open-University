@@ -1,11 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const {
-  resetDb,
-  loginFormFn,
-  loginWith,
-  createForm,
-  blogFormFn,
-} = require('./helpers.js')
+const { resetDb, loginFormFn, loginWith, createBlog } = require('./helpers.js')
 
 let loginForm
 describe('Login', () => {
@@ -47,24 +41,26 @@ describe('Login', () => {
     await expect(page.getByText('Author')).not.toBeVisible()
     await expect(page.getByText('Title')).not.toBeVisible()
     await expect(page.getByText('Url')).not.toBeVisible()
+    // console.log(await page.content())
+  })
+})
+
+describe('test blogs', () => {
+  beforeEach(async ({ page, request }) => {
+    await resetDb(request)
+    await page.goto('http://localhost:5173/')
+    loginForm = loginFormFn(page)
+    await loginWith(loginForm, 'ElB', 'bua234')
+    await createBlog(page, 'Test author', 'Test title', 'Test url')
   })
 
   test('loggued user can create a new blog and it is visible', async ({
     page,
   }) => {
-    await loginWith(loginForm, 'ElB', 'bua234')
-    // console.log(await page.content())
-
-    const showBlogFormButton = page.getByText('Add a new blog')
-    await showBlogFormButton.click()
-
-    const blogForm = blogFormFn(page)
-    await createForm(blogForm, 'Test author', 'Test title', 'Test url')
-
     const newBlog = page.getByText('Test title', { exact: true })
     await expect(newBlog).toBeVisible()
 
-    const viewButton = page.locator('.toggle-btn')
+    const viewButton = page.locator('.toggle-btn').nth(0)
     await expect(viewButton).toBeVisible()
     await viewButton.click()
 
@@ -77,11 +73,90 @@ describe('Login', () => {
     await expect(blogAuthor).toBeVisible()
 
     const hideButton = page.getByText('Hide')
-    await expect(viewButton).toBeVisible()
+    await expect(hideButton).toBeVisible()
     await hideButton.click()
 
     await expect(blogTitle).toBeVisible()
     await expect(blogUrl).not.toBeVisible()
     await expect(blogAuthor).not.toBeVisible()
+  })
+  test('a non-logged in user can add a like to any blog', async ({ page }) => {
+    const viewButton = page.getByText('View')
+    await viewButton.click()
+
+    const likes = page.locator('.blog-likes span')
+    expect(likes).toHaveText('0 likes')
+    const likeButton = page.getByText('Like', { exact: true })
+    await expect(likeButton).toBeVisible()
+    await expect(likeButton).toBeEnabled()
+    await likeButton.click()
+
+    await page.waitForTimeout(500)
+    expect(likes).toHaveText('1 likes')
+
+    await likeButton.click()
+    await page.waitForTimeout(500)
+    expect(likes).toHaveText('2 likes')
+    // console.log(await page.content())
+  })
+
+  test('likes on differents blogs', async ({ page }) => {
+    await createBlog(page, 'Test author 2', 'Test title 2', 'Test url 2', '4')
+    await createBlog(page, 'Test author 3', 'Test title 3', 'Test url 3')
+
+    // First blog (Test title 2, because they are ordered by the number of likes):
+    const firstHiddenContainer = page.locator('.blog_hidden').nth(0)
+    const viewButton = firstHiddenContainer.getByText('View')
+    await viewButton.click()
+
+    const firstVisibleContainer = page.locator('.blog-container').nth(0)
+    const firstSpanlikes = firstVisibleContainer.locator('.blog-likes span')
+    expect(firstSpanlikes).toHaveText('4 likes')
+
+    const firstLikeButton = firstVisibleContainer.getByText('Like', {
+      exact: true,
+    })
+    await expect(firstLikeButton).toBeVisible()
+    await firstLikeButton.click()
+    await page.waitForTimeout(500)
+    expect(firstSpanlikes).toHaveText('5 likes')
+
+    // Second blog (Test title):
+    const secondHiddenContainer = page.locator('.blog_hidden').nth(0) //Position 0 because the blog above is not longer hidden
+    const secondViewButton = secondHiddenContainer.getByText('View')
+    await secondViewButton.click()
+
+    const secondVisibleContainer = page.locator('.blog-container').nth(1)
+    const secondSpanlikes = secondVisibleContainer.locator('.blog-likes span')
+    expect(secondSpanlikes).toHaveText('0 likes')
+
+    const secondLikeButton = secondVisibleContainer.getByText('Like', {
+      exact: true,
+    })
+    await expect(secondLikeButton).toBeVisible()
+    await secondLikeButton.click()
+    await page.waitForTimeout(500)
+    expect(secondSpanlikes).toHaveText('1 likes')
+
+    await secondLikeButton.click()
+    await page.waitForTimeout(500)
+    expect(secondSpanlikes).toHaveText('2 likes')
+
+    // Third blog (Test title):
+    const thirdHiddenContainer = page.locator('.blog_hidden').nth(0)
+    const thirdViewButton = thirdHiddenContainer.getByText('View')
+    await thirdViewButton.click()
+
+    const thirdVisibleContainer = page.locator('.blog-container').nth(2)
+    const thirdSpanlikes = thirdVisibleContainer.locator('.blog-likes span')
+    expect(thirdSpanlikes).toHaveText('0 likes')
+
+    const thirdLikeButton = thirdVisibleContainer.getByText('Like', {
+      exact: true,
+    })
+    await expect(thirdLikeButton).toBeVisible()
+    await thirdLikeButton.click()
+    await page.waitForTimeout(500)
+    expect(thirdSpanlikes).toHaveText('1 likes')
   })
 })

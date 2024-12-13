@@ -27,15 +27,24 @@ const blogFormFn = (page) => {
   blogForm['authorInput'] = page.getByRole('textbox', { name: 'Author' })
   blogForm['titleInput'] = page.getByRole('textbox', { name: 'Title' })
   blogForm['urlInput'] = page.getByRole('textbox', { name: 'Url' })
+  blogForm['likes'] = page.getByRole('textbox', { name: 'Likes' })
   blogForm['button'] = page.getByText('Create')
   return blogForm
 }
 
-const createForm = async (blogForm, author, title, url) => {
+const fillForm = async (blogForm, author, title, url, likes = '0') => {
   await blogForm.authorInput.fill(author)
   await blogForm.titleInput.fill(title)
   await blogForm.urlInput.fill(url)
+  await blogForm.likes.fill(likes)
   await blogForm.button.click()
 }
 
-export { loginWith, resetDb, loginFormFn, createForm, blogFormFn }
+const createBlog = async (page, author, title, url, likes = '0') => {
+  const showBlogFormButton = page.getByText('Add a new blog')
+  await showBlogFormButton.click()
+  const blogForm = blogFormFn(page)
+  await fillForm(blogForm, author, title, url, likes)
+}
+
+export { loginWith, resetDb, loginFormFn, fillForm, blogFormFn, createBlog }
