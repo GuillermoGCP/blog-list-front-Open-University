@@ -1,5 +1,11 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { resetDb, loginFormFn, loginWith, createBlog } = require('./helpers.js')
+const {
+  resetDb,
+  loginFormFn,
+  loginWith,
+  createBlog,
+  aceptConfirm,
+} = require('./helpers.js')
 
 let loginForm
 describe('Login', () => {
@@ -158,5 +164,23 @@ describe('test blogs', () => {
     await thirdLikeButton.click()
     await page.waitForTimeout(500)
     expect(thirdSpanlikes).toHaveText('1 likes')
+  })
+  test('loggued user can delete a blog', async ({ page }) => {
+    aceptConfirm(page, 'Test title', 'Test author')
+    const newBlog = page.getByText('Test title', { exact: true })
+    await expect(newBlog).toBeVisible()
+
+    const viewButton = page.getByText('View')
+    await expect(viewButton).toBeVisible()
+    await viewButton.click()
+
+    const removeButton = page.getByText('remove')
+    expect(removeButton).toBeDefined()
+    expect(removeButton).toBeVisible()
+    await removeButton.click()
+
+    await page.waitForTimeout(500)
+    await expect(newBlog).toHaveCount(0)
+    await expect(newBlog).not.toBeVisible()
   })
 })

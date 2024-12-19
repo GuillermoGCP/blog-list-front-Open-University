@@ -1,3 +1,5 @@
+const { expect } = require('@playwright/test')
+
 const loginWith = async (loginForm, username, password) => {
   await loginForm.usernameInput.fill(username)
   await loginForm.passwordInput.fill(password)
@@ -46,5 +48,20 @@ const createBlog = async (page, author, title, url, likes = '0') => {
   const blogForm = blogFormFn(page)
   await fillForm(blogForm, author, title, url, likes)
 }
+const aceptConfirm = (page, title, author) => {
+  page.on('dialog', async (dialog) => {
+    expect(dialog.type()).toBe('confirm')
+    expect(dialog.message()).toContain(`Remove ${title} by ${author}`)
+    await dialog.accept()
+  })
+}
 
-export { loginWith, resetDb, loginFormFn, fillForm, blogFormFn, createBlog }
+export {
+  loginWith,
+  resetDb,
+  loginFormFn,
+  fillForm,
+  blogFormFn,
+  createBlog,
+  aceptConfirm,
+}
