@@ -5,12 +5,14 @@ const {
   loginWith,
   createBlog,
   aceptConfirm,
+  createUser,
 } = require('./helpers.js')
 
 let loginForm
 describe('Login', () => {
   beforeEach(async ({ page, request }) => {
     await resetDb(request)
+    await createUser(request, 'Guanabi', 'ElB', 'bua234')
     await page.goto('http://localhost:5173/')
     loginForm = loginFormFn(page)
   })
@@ -54,6 +56,7 @@ describe('Login', () => {
 describe('test blogs', () => {
   beforeEach(async ({ page, request }) => {
     await resetDb(request)
+    await createUser(request, 'Guanabi', 'ElB', 'bua234')
     await page.goto('http://localhost:5173/')
     loginForm = loginFormFn(page)
     await loginWith(loginForm, 'ElB', 'bua234')
@@ -182,5 +185,41 @@ describe('test blogs', () => {
     await page.waitForTimeout(500)
     await expect(newBlog).toHaveCount(0)
     await expect(newBlog).not.toBeVisible()
+  })
+
+  test('only the blog creator can see the delete button', async ({
+    request,
+    page,
+  }) => {
+    //BLogOwner:
+    await expect(page.getByText('Test title', { exact: true })).toBeVisible()
+    const viewButton = page.getByText('View')
+    await viewButton.click()
+
+    const removeButton = page.getByText('remove')
+    expect(removeButton).toBeDefined()
+    expect(removeButton).toBeVisible()
+
+    //Loggout:
+    const logOutButton = page.getByText('LogOut')
+    expect(logOutButton).toBeDefined()
+    expect(logOutButton).toBeVisible()
+    await logOutButton.click()
+
+    //Non-logged user:
+    await expect(page.getByText('Test title', { exact: true })).toBeVisible()
+    expect(removeButton).toHaveCount(0)
+    expect(removeButton).not.toBeVisible()
+
+    //LogIn as a different user:
+    await page.waitForTimeout(500)
+    await expect(page.getByText('Test title', { exact: true })).toBeVisible()
+    await createUser(request, 'MenInBlack', 'MIB', 'mib234')
+    loginForm = loginFormFn(page)
+    await loginWith(loginForm, 'MIB', 'mib234')
+    await expect(page.getByText('MIB logged in')).toBeVisible()
+
+    expect(removeButton).toHaveCount(0)
+    expect(removeButton).not.toBeVisible()
   })
 })

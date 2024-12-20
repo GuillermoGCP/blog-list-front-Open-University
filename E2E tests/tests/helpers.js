@@ -6,15 +6,18 @@ const loginWith = async (loginForm, username, password) => {
   await loginForm.button.click()
 }
 
-const resetDb = async (request) => {
-  await request.post('http://localhost:3001/api/testing/reset')
+const createUser = async (request, name, username, password) => {
   await request.post('http://localhost:3001/api/users', {
     data: {
-      name: 'Guanabi',
-      username: 'ElB',
-      password: 'bua234',
+      name: name,
+      username: username,
+      password: password,
     },
   })
+}
+
+const resetDb = async (request) => {
+  await request.post('http://localhost:3001/api/testing/reset')
 }
 
 const loginFormFn = (page) => {
@@ -64,4 +67,5 @@ export {
   blogFormFn,
   createBlog,
   aceptConfirm,
+  createUser,
 }
