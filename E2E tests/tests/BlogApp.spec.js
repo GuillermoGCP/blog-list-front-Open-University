@@ -222,4 +222,29 @@ describe('test blogs', () => {
     expect(removeButton).toHaveCount(0)
     expect(removeButton).not.toBeVisible()
   })
+
+  test('blogs are sorted by number of likes', async ({ page }) => {
+    // Create blogs with different like counts: first created (Test title) has zero likes:
+    await createBlog(page, 'Test author 2', 'Test title 2', 'Test url 2', '4')
+    await createBlog(page, 'Test author 3', 'Test title 3', 'Test url 3', '1')
+
+    // Order:
+    const topBlogTitle = page
+      .locator('.blog_hidden')
+      .nth(0)
+      .getByText('Test title 2')
+    await expect(topBlogTitle).toBeVisible()
+
+    const secondBlogTitle = page
+      .locator('.blog_hidden')
+      .nth(1)
+      .getByText('Test title 3')
+    await expect(secondBlogTitle).toBeVisible()
+
+    const thirdBlogTitle = page
+      .locator('.blog_hidden')
+      .nth(2)
+      .getByText('Test title')
+    await expect(thirdBlogTitle).toBeVisible()
+  })
 })
